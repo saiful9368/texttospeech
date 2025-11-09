@@ -82,7 +82,7 @@
       setLoading(true);
       try {
         // ** USE YOUR WORKING GET ENDPOINT **
-        const url = `https://1zi5vhx518.execute-api.us-east-1.amazonaws.com/textToSpeechLambda?text=${encodeURIComponent(text)}`;
+        const url = `https://lm3i19hvu1.execute-api.ap-south-1.amazonaws.com/dev/myfunc-aws?text=${encodeURIComponent(text)}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
