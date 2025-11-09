@@ -35,8 +35,8 @@
         <textarea 
           id="text-input" rows="8"
           class="w-full p-4 bg-[#F8F5F2] border-2 border-transparent focus:border-[#C0A080] rounded-lg shadow-inner transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#C0A080]/50 resize-none"
-          placeholder="Paste your text here..."
-        ></textarea>
+          placeholder="Paste your text here...">
+        </textarea>
       </div>
 
       <!-- Button -->
@@ -60,7 +60,7 @@
     </div>
 
     <footer class="mt-12 text-center text-gray-500">
-      <p>&copy; 2024 Verba Project. Powered by AWS Polly.</p>
+      <p>&copy; 2024 Verba Project. Powered by AWS Polly.</p>
     </footer>
   </div>
 
@@ -81,17 +81,27 @@
 
       setLoading(true);
       try {
-        // ** USE YOUR WORKING GET ENDPOINT **
-        const url = `https://lm3i19hvu1.execute-api.ap-south-1.amazonaws.com/dev/myfunc-aws?text=${encodeURIComponent(text)}`;
-        const res = await fetch(url);
+        const url = "https://lm3i19hvu1.execute-api.ap-south-1.amazonaws.com/dev/myfunc-aws";
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const blob = await res.blob();
-        const src  = URL.createObjectURL(blob);
+        const json = await res.json();
+        if (!json.audioBase64) throw new Error("No audio returned");
 
-        audioOutput.src = src;
+        const audioBytes = Uint8Array.from(atob(json.audioBase64), c => c.charCodeAt(0));
+        const audioBlob = new Blob([audioBytes], { type: "audio/mpeg" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        audioOutput.src = audioUrl;
         audioOutput.classList.remove('hidden');
         await audioOutput.play().catch(() => showMessage("Click ▶ to play."));
+
       } catch (err) {
         console.error(err);
         showMessage("Error generating speech. Try again.");
